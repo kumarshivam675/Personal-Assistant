@@ -10,3 +10,4 @@ Things user need to keep in mind:
 1. We are trying to make things more and more easy for the user so make sure you have typed the current action name.
 2. There are various other scripts running for that you will need your api key which you will have to use for api calls.
 3. There are other scripts which you can use without api keys.
+4. The real time data used was provided by iChangeMyCity
