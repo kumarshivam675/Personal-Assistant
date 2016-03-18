@@ -2,15 +2,14 @@ from yowsup.layers.interface import YowInterfaceLayer, ProtocolEntityCallback
 from yowsup.layers.protocol_messages.protocolentities import TextMessageProtocolEntity
 from yowsup.layers.protocol_receipts.protocolentities import OutgoingReceiptProtocolEntity
 from yowsup.layers.protocol_acks.protocolentities import OutgoingAckProtocolEntity
-
-from api import nearbypubs
-from api import nearbyhospitals
-from api import complaint
-from api import search_complaint
-from api import tender
-from api import uploadComment
-from api import pnr_status
-from api import live_status
+import test
+import passport
+import nearbypubs
+import nearbyhospitals
+import complaint
+import live_status
+import pnr_status
+import route
 
 
 class EchoLayer(YowInterfaceLayer):
@@ -19,8 +18,6 @@ class EchoLayer(YowInterfaceLayer):
     caption = ""
     problem = ""
     destination = ""
-    tender_no = ""
-
     @ProtocolEntityCallback("message")
     def onMessage(self, messageProtocolEntity):
         # send receipt otherwise we keep receiving the same message over and over
@@ -39,14 +36,31 @@ class EchoLayer(YowInterfaceLayer):
                     print inputList, len(inputList)
                     inputMessage = inputList[0]
 
-                    message = ""
+                    message = "Invalid Command. Please type #info"
 
-                    if inputMessage == "#info":
-                        message = "#complaints <complaint-id>: to get complaint with the complaint ID\n#projects: to get details about the projects in the neighbourhood \n#feedback <Serial No.> : to get feedback of that particular tender number\n#hospitals: to get list of nearby hospitals \n#complaintsNearby: to get complaints of the neighbourhood\n#hotels: to get list of nearby hotels \n#pnr <pnr number> to get PNR details\n#status <train no> <date in yyyymmdd> to get running train status\n#lodgeComplaint <type> to register a complaint"
+                    if inputMessage == "#passport":
+                        inputId = messageProtocolEntity.getParticipant()[2:12]
+                        message = passport.passportDetail(inputId)
+
+                    if inputMessage == "#cab":
+                        inputId = messageProtocolEntity.getParticipant()[2:12]
+                        message = test.cabDetail(inputId)
+
+                    elif inputMessage == "#info":
+                        message = "#passport: to get passport status\n#cab: to get cab details \n#hospitals: to get list of nearby hospitals\n#hotels: to get list of nearby hotels \n#pnr <pnr number> to get PNR details\n#status <train no> <date in yyyymmdd> to get running train status\n#complaints <type> to register a complaint\n#routes <destination>"
 
                     elif inputMessage == "#hotels" and len(inputList) == 1:
                         self.status = "hotels_origin"
                         message = "Please send your location"
+
+                    elif inputMessage == "#hospitals" and len(inputList) == 1:
+                        self.status = "hospital_origin"
+                        message = "Please send your location"
+
+                    elif inputMessage == "#complaints" and len(inputList) == 2:
+                        self.problem = inputList[1]
+                        self.status = "complaint_image"
+                        message = "Please Upload the image"
 
                     elif inputMessage == "#pnr" and len(inputList) == 2:
                         message = pnr_status.PNR(inputList[1])
@@ -58,33 +72,10 @@ class EchoLayer(YowInterfaceLayer):
                         #message = ""
                         print message
 
-                    elif inputMessage == "#hospitals" and len(inputList) == 1:
-                        self.status = "hospital_origin"
-                        message = "Please send your location"
-
-                    elif inputMessage == "#complaints" and len(inputList) == 2:
-                        inputId = inputList[1]
-                        message += search_complaint.search(inputId)
-
-                    elif inputMessage == "#lodgeComplaint" and len(inputList) == 1:
-                        self.status = "lodgeComplaint_image"
-                        message = "Please Upload the image"
-
-                    elif inputMessage == "#complaintsNearby" and len(inputList) == 1:
-                        self.status = "complaintNearby_location"
-                        message = "Please send your location"
-
-                    elif inputMessage == "#projects" and len(inputList) == 1:
-                        self.status = "project_origin"
-                        message = "Please send your location"
-
-                    elif inputMessage == "#feedback" and len(inputList) == 2:
-                        self.tender_no = inputList[1]
-                        self.status = "feedback_image"
-                        message = "Please upload the image"
-
-                    else:
-                        message = "Invalid Format"
+                    elif inputMessage == "#routes" and len(inputList) >= 2:
+                        self.status = "bus_origins"
+                        self.destination = " ".join(inputList[1:])
+                        message = "Please send your current location"
 
                     outgoingMessageProtocolEntity = TextMessageProtocolEntity(
                         message,
@@ -97,56 +88,38 @@ class EchoLayer(YowInterfaceLayer):
                     if messageProtocolEntity.getMediaType() == "location":
 
                         if self.status == "hotels_origin":
-                            ans = nearbypubs.waypoints(
-                                [messageProtocolEntity.getLatitude(), messageProtocolEntity.getLongitude()])
+                            ans = nearbypubs.waypoints([messageProtocolEntity.getLatitude(), messageProtocolEntity.getLongitude()])
                             print len(ans)
                             k = 1
                             for i in ans:
-                                message += str(k) + ". " + i[0] + ", Rating: " + str(i[1]) + "\n"
+                                message += str(k) + ". " +i[0] + ", Rating: " + str(i[1]) + "\n"
                                 k += 1
                             self.status = "continue"
                             print messageProtocolEntity.getLatitude(), messageProtocolEntity.getLongitude()
 
                         elif self.status == "hospital_origin":
-                            ans = nearbyhospitals.waypoints(
-                                [messageProtocolEntity.getLatitude(), messageProtocolEntity.getLongitude()])
+                            ans = nearbyhospitals.waypoints([messageProtocolEntity.getLatitude(), messageProtocolEntity.getLongitude()])
                             print len(ans)
                             k = 1
                             for i in ans:
-                                message += str(k) + ". " + i + "\n"
+                                message += str(k) + ". " +i + "\n"
                                 k += 1
                             self.status = "continue"
                             print messageProtocolEntity.getLatitude(), messageProtocolEntity.getLongitude()
 
-                        elif self.status == "project_origin":
-                            lat = messageProtocolEntity.getLatitude()
-                            lng = messageProtocolEntity.getLongitude()
-                            temp = tender.getWard([lat, lng])
-                            message = tender.getTenders(temp)
-                            self.status = "continue"
-
-                        elif self.status == "feedback_location":
-                            lat = messageProtocolEntity.getLatitude()
-                            lng = messageProtocolEntity.getLongitude()
-                            # uploadComment.uploadComment(messageProtocolEntity.getFrom()[2:12], self.caption,
-                            #                             self.tender_no, self.url)
-                            self.status = "continue"
-                            message = "Complaint received. Thank You"
-
-                        elif self.status == "complaintNearby_location":
-                            print "enter"
-                            lat = messageProtocolEntity.getLatitude()
-                            lng = messageProtocolEntity.getLongitude()
-                            temp = tender.getWard([lat, lng])
-                            message = tender.getComplains(temp)
-                            print "done"
-                            self.status = "continue"
-
-                        elif self.status == "lodgeComplaint_location":
-                            #complaint.complaintLodge(self.problem,messageProtocolEntity.getLatitude(),messageProtocolEntity.getLongitude(), self.url,self.caption)
+                        elif self.status == "complaint_location":
+                            complaint.complaintLodge(self.problem,messageProtocolEntity.getLatitude(),messageProtocolEntity.getLongitude(), self.url,self.caption)
                             self.status = "continue"
                             print messageProtocolEntity.getLatitude(), messageProtocolEntity.getLongitude()
                             message = "Complaint received. Thanks"
+
+                        elif self.status == "bus_origins":
+                            origin = ""
+                            origin += str(messageProtocolEntity.getLatitude()) + ","
+                            origin += str(messageProtocolEntity.getLongitude())
+                            print messageProtocolEntity.getLatitude(), messageProtocolEntity.getLongitude()
+                            message = route.waypoints(origin, self.destination)
+                            print message
 
                     elif messageProtocolEntity.getMediaType() == "image":
                         if self.status == "complaint_image":
@@ -155,21 +128,9 @@ class EchoLayer(YowInterfaceLayer):
                             self.status = "complaint_location"
                             message = "Image received. Please send your location"
 
-                        elif self.status == "feedback_image":
-                            self.url = messageProtocolEntity.getMediaUrl()
-                            self.caption = messageProtocolEntity.getCaption()
-                            self.status = "feedback_location"
-                            message = "Please send your location"
-
-                        elif self.status == "lodgeComplaint_image":
-                            self.url = messageProtocolEntity.getMediaUrl()
-                            self.caption = messageProtocolEntity.getCaption()
-                            self.status = "lodgeComplaint_location"
-                            message = "Image received. Please send your location"
-
                     outgoingMessageProtocolEntity = TextMessageProtocolEntity(
-                        message,
-                        to=messageProtocolEntity.getFrom())
+                            message,
+                            to=messageProtocolEntity.getFrom())
 
                     self.toLower(receipt)
                     self.toLower(outgoingMessageProtocolEntity)
