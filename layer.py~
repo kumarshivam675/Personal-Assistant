@@ -66,7 +66,7 @@ class EchoLayer(YowInterfaceLayer):
                         inputId = inputList[1]
                         message += search_complaint.search(inputId)
 
-                    elif inputMessage == "#lodgeComplaint" and len(inputList) == 2:
+                    elif inputMessage == "#lodgeComplaint" and len(inputList) == 1:
                         self.status = "lodgeComplaint_image"
                         message = "Please Upload the image"
 

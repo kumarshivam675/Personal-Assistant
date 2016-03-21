@@ -1,0 +1,23 @@
+to receive sms
+ - yowsup-cli registration --requestcode sms --phone 918951587609 -C 91
+ 
+ to register
+ - yowsup-cli registration -register 948-325 --phone 918951587609 -C 91
+ 
+ to send sms
+ - yowsup-cli demos --config whatsapp_config.txt --send 919886680325 "Got it?"
+ 
+ to start yowsup-cli
+ - python yowsup-cli demos -y -c whatsapp_config.txt
+ 	
+ 	to go online
+ 	-/L
+ 	
+ 	to send message
+ 	-/message send 918951587609 hi
+ 	
+ 	to recieve
+ 	- simply send message
+ 
+
+
