@@ -11,13 +11,18 @@ def waypoints(src):
     response = urllib2.urlopen(url)
     data = json.load(response)
     ans = []
-    print url
-    for i in range(2, 20):
+    #print data
+    #print len(data)
+    #print url
+    length = len(data["results"]) if len(data["results"]) < 5 else len(data["results"])
+    print length
+    for i in range(2, length):
         if (data["results"][i]["types"][0] == "lodging"):
             print data["results"][i]["name"]
             #print "ratings :" + str(data["results"][i]["rating"])
-
+            #print ans
             ans.append([data["results"][i]["name"],""])
+    #print ans
     return ans
         # print data
         # distance = data["routes"][0]["legs"][0]["distance"]["text"]
@@ -29,7 +34,8 @@ def waypoints(src):
 
         # print decodeGMapPolylineEncoding(tmp)
 
-
+waypoints([sys.argv[1], sys.argv[2]])
+#12.975067512688016 77.60764550417662
 #waypoints([sys.argv[1], sys.argv[2]])
 # waypoints([12.9817447954723,77.574481312945], [12.9899747663903,77.572098665973])
 # whitefield: 12.971289, 77.750098
