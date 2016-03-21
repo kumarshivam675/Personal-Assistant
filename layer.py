@@ -42,7 +42,7 @@ class EchoLayer(YowInterfaceLayer):
                     message = ""
 
                     if inputMessage == "#info":
-                        message = "#complaints <complaint-id>: to get complaint with the complaint ID\n#projects: to get details about the projects in the neighbourhood \n#feedback <Serial No.> : to get feedback of that particular tender number\n#hospitals: to get list of nearby hospitals \n#complaintsNearby: to get complaints of the neighbourhood\n#hotels: to get list of nearby hotels \n#pnr <pnr number> to get PNR details\n#status <train no> <date in yyyymmdd> to get running train status\n#lodgeComplaint <type> to register a complaint"
+                        message = "#complaints <complaint-id>: to get complaint with the complaint ID\n\n#projects: to get details about the projects in the neighbourhood \n\n#feedback <Serial No.> : to get feedback of that particular tender number\n\n#hospitals: to get list of nearby hospitals \n\n#complaintsNearby: to get complaints of the neighbourhood\n#hotels: to get list of nearby hotels \n\n#pnr <pnr number> to get PNR details\n\n#trainStatus <train no> <date in yyyymmdd> to get running train status\n\n#lodgeComplaint <type> to register a complaint"
 
                     elif inputMessage == "#hotels" and len(inputList) == 1:
                         self.status = "hotels_origin"
