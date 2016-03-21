@@ -102,7 +102,7 @@ class EchoLayer(YowInterfaceLayer):
                             print len(ans)
                             k = 1
                             for i in ans:
-                                message += str(k) + ". " + i[0] + ", Rating: " + str(i[1]) + "\n"
+                                message += str(k) + ". " + i[0].encode('utf-8') + "\n"
                                 k += 1
                             self.status = "continue"
                             print messageProtocolEntity.getLatitude(), messageProtocolEntity.getLongitude()
@@ -113,7 +113,7 @@ class EchoLayer(YowInterfaceLayer):
                             print len(ans)
                             k = 1
                             for i in ans:
-                                message += str(k) + ". " + i + "\n"
+                                message += str(k) + ". " + i.encode('utf-8') + "\n"
                                 k += 1
                             self.status = "continue"
                             print messageProtocolEntity.getLatitude(), messageProtocolEntity.getLongitude()
