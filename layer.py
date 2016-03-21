@@ -84,7 +84,7 @@ class EchoLayer(YowInterfaceLayer):
                         message = "Please upload the image"
 
                     else:
-                        message = "Invalid Format"
+                        message = ""
 
                     outgoingMessageProtocolEntity = TextMessageProtocolEntity(
                         message,
