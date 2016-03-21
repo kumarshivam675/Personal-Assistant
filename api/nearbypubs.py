@@ -12,7 +12,8 @@ def waypoints(src):
     data = json.load(response)
     ans = []
     print url
-    for i in range(2, 20):
+    length = len(data["results"]) if len(data["results"]) < 5 else 5
+    for i in range(2, length):
         if (data["results"][i]["types"][0] == "lodging"):
             print data["results"][i]["name"]
             #print "ratings :" + str(data["results"][i]["rating"])
